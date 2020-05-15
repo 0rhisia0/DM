@@ -7,20 +7,27 @@ from matplotlib import pyplot as plt
 
 plt.style.use('ggplot')
 
-def plot_diff_rate():
+def plot_rate():
     Emin = 0.001 * const.keV
     Emax = 200. * const.keV
     Nsteps = 10000
-    conv_fact = const.kg*const.day*const.keV/(const.c**2)
     del_Er = (Emax - Emin) / Nsteps
     Er = np.arange(Emin, Emax, del_Er)
-    Xe = conv_fact*fn.diff_rate(Er, const.AXe)
-    Ge = conv_fact*fn.diff_rate(Er, const.AGe)
-    Ar = conv_fact*fn.diff_rate(Er, const.AAr)
+    Xe = fn.diff_rate(Er, const.AXe)
+    Ge = fn.diff_rate(Er, const.AGe)
+    Ar = fn.diff_rate(Er, const.AAr)
     fig, ax = plt.subplots()
     line1, = ax.plot(Er, Xe, label='Xe')
     line2, = ax.plot(Er, Ge, label='Ge')
     line3, = ax.plot(Er, Ar, label='Ar')
+    xXe, yXe = fn.integrate_rate_new(const.AXe)
+    xAr, yAr = fn.integrate_rate_new(const.AAr)
+    xGe, yGe = fn.integrate_rate_new(const.AGe)
+    line4, = ax.plot(xXe, yXe, label='Xe', linestyle='--')
+    line5, = ax.plot(xGe, yGe, label='Ge', linestyle='--')
+    line6, = ax.plot(xAr, yAr, label='Ar', linestyle='--')
+    ax.set_xlim(0, 200)
+    ax.set_ylim(1e-6, 1e-3)
     ax.legend()
     plt.xlabel("Recoil Energy (KeV)")
     plt.ylabel("Differential Rate (counts/kg/day/KeV)")
@@ -36,8 +43,8 @@ def plot_int_rate2():
     line1, = ax.plot(xXe, yXe, label='Xe')
     line2, = ax.plot(xGe, yGe, label='Ge')
     line3, = ax.plot(xAr, yAr, label='Ar')
-    ax.set_xlim(1.e-2, 200)
-    ax.set_ylim(1.e-27, 1e-24)
+    ax.set_xlim(1.e-2, 60)
+    # ax.set_ylim(1.e-5, 1e-3)
     plt.legend()
     plt.ylabel("Rate (counts/kg/day)")
     plt.xlabel("Threshold Energy (KeV)")
@@ -46,9 +53,7 @@ def plot_int_rate2():
 
 
 def main():
-    # Emax = 544**2*2*(const.Mn*const.AXe*const.M_D/(const.M_D+const.Mn*const.AXe))**2/(const.Mn*const.AXe)
-    # print(Emax)
-    # plot_diff_rate()
+    # plot_rate()
     plot_int_rate2()
     # plt.show()
 

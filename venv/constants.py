@@ -1,4 +1,4 @@
-cm = 1.
+cm = 0.01
 m = 100.*cm
 km = 1000.*m
 fm = 1.e-15*m
@@ -34,7 +34,7 @@ ASi = 28.085
 AAr = 39.948
 AGe = 72.64
 AXe = 131.293
-AH  = 1.
+AH = 1.
 AHe = 4.
 ANe = 20.180
 ar39_atmo = 192./day/kg/keV
