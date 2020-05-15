@@ -8,22 +8,28 @@ from matplotlib import pyplot as plt
 plt.style.use('ggplot')
 
 
-def events_likelihood(events, WIMP, A):
+def events_likelihood(e_min, e_max, n_steps, events, WIMP, A):
     WIMP = [("mass", "sigma")]
-    expected_events = 
-    for energy in events:
-        p_energy = energy_prob(energy, WIMP, A)
+    del_Er = (e_max - e_min) / n_steps
+    Er = np.arange(Emin, Emax, del_Er)
+    p_energies = energy_prob(events, WIMP, A)
 
 
-def energy_prob(energy, WIMP, A):
-    # Find the probability of each energy
-    dif_rate = fn.diff_rate2(energy, WIMP, A)
+def energy_prob(events, WIMP, A):
+    p_energies = 1
+    dif_rate = fn.diff_rate2(WIMP, A)
     Er, int_rate = fn.integrate_rate(WIMP, A)
-    return dif_rate/int_rate
+    p_d_f_energies = dif_rate / int_rate
+    for event_energy in events:
+        idx = find_nearest_idx(event_energy, Er)
+        p_energies *= p_d_f_energies[idx]
+    return p_energies
 
 
-
-
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
 
 
 def main():
