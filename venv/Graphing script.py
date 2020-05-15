@@ -20,13 +20,13 @@ def plot_rate():
     line1, = ax.plot(Er, Xe, label='Xe')
     line2, = ax.plot(Er, Ge, label='Ge')
     line3, = ax.plot(Er, Ar, label='Ar')
-    xXe, yXe = fn.integrate_rate_new(const.AXe)
-    xAr, yAr = fn.integrate_rate_new(const.AAr)
-    xGe, yGe = fn.integrate_rate_new(const.AGe)
+    xXe, yXe = fn.integrate_rate(const.AXe)
+    xAr, yAr = fn.integrate_rate(const.AAr)
+    xGe, yGe = fn.integrate_rate(const.AGe)
     line4, = ax.plot(xXe, yXe, label='Xe', linestyle='--')
     line5, = ax.plot(xGe, yGe, label='Ge', linestyle='--')
     line6, = ax.plot(xAr, yAr, label='Ar', linestyle='--')
-    ax.set_xlim(0, 200)
+    ax.set_xlim(0, 60)
     ax.set_ylim(1e-6, 1e-3)
     ax.legend()
     plt.xlabel("Recoil Energy (KeV)")
@@ -36,9 +36,9 @@ def plot_rate():
 
 
 def plot_int_rate2():
-    xXe, yXe = fn.integrate_rate_new(const.AXe)
-    xAr, yAr = fn.integrate_rate_new(const.AAr)
-    xGe, yGe = fn.integrate_rate_new(const.AGe)
+    xXe, yXe = fn.integrate_rate(const.AXe)
+    xAr, yAr = fn.integrate_rate(const.AAr)
+    xGe, yGe = fn.integrate_rate(const.AGe)
     fig, ax = plt.subplots()
     line1, = ax.plot(xXe, yXe, label='Xe')
     line2, = ax.plot(xGe, yGe, label='Ge')
@@ -53,7 +53,8 @@ def plot_int_rate2():
 
 
 def main():
-    # plot_rate()
+
+    plot_rate()
     plot_int_rate2()
     # plt.show()
 
