@@ -15,18 +15,6 @@ def diff_rate(E_r, A):
     constant = const.N0 * const.sigma * const.rho * M_T / (2 * mun ** 2 * const.M_D)
     return constant * A * form_factor(E_r, A) ** 2 * vel_integral(M_T, E_r, mu) * conv_fact
 
-
-def diff_rate2(E_r, WIMP, A):
-    M_D = WIMP[0]
-    sigma = WIMP[1]
-    conv_fact = const.kg * const.day * const.keV * (const.c ** 2)
-    M_T = const.Mn * A
-    mu = const.Mn * A * M_D / (M_D + const.Mn * A)
-    mun = const.Mn * M_D / (M_D + const.Mn)
-    constant = const.N0 * sigma * const.rho * M_T / (2 * mun ** 2 * M_D)
-    return constant * A * form_factor(E_r, A) ** 2 * vel_integral(M_T, E_r, mu) * conv_fact
-
-
 def vel_integral(M_T, E_r, mu):
     v_min_arr = np.sqrt(M_T * E_r / (2 * mu ** 2))
     k = ((np.pi ** (3 / 2)) * (const.v_0 ** 3) * (
@@ -82,22 +70,28 @@ def integrate_rate(A):
         y[i] = integral
     return x, y
 
-def integrate_rate2(WIMP, A):
-    Emin = 0.001 * const.keV
-    Emax = max_recoil_energy(A)
-    Nsteps = 1000
-    del_Er = (Emax - Emin) / Nsteps
-    Er = np.arange(Emin, Emax, del_Er)
-    dif_rate = diff_rate2(Er, WIMP, A)
-    x = np.empty(Er.shape[0])
-    y = np.empty(Er.shape[0])
-    for i in range(Er.shape[0]):
-        domain = Er[i:]
+
+def integrate_rate2(E_r, WIMP, A):
+    dif_rate = diff_rate2(E_r, WIMP, A)
+    x = np.empty(E_r.shape[0])
+    y = np.empty(E_r.shape[0])
+    for i in range(E_r.shape[0]):
+        domain = E_r[i:]
         codomain = dif_rate[i:]
         integral = integrate.trapz(codomain, domain)
-        x[i] = Er[i]
+        x[i] = E_r[i]
         y[i] = integral
     return x, y
+
+def diff_rate2(E_r, WIMP, A):
+    M_D = WIMP[0]
+    sigma = WIMP[1]
+    conv_fact = const.kg * const.day * const.keV * (const.c ** 2)
+    M_T = const.Mn * A
+    mu = const.Mn * A * M_D / (M_D + const.Mn * A)
+    mun = const.Mn * M_D / (M_D + const.Mn)
+    constant = const.N0 * sigma * const.rho * M_T / (2 * mun ** 2 * M_D)
+    return constant * A * form_factor(E_r, A) ** 2 * vel_integral(M_T, E_r, mu) * conv_fact
 
 
 def velDist1(v_D):
