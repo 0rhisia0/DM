@@ -42,7 +42,7 @@ def main():
     del_Er = (Emax - Emin) / Nsteps
     Er = np.arange(Emin, Emax, del_Er)
     print(events_likelihood(0.001*const.keV, 200*const.keV, 1000
-                            , [15*const.keV, 13*const.keV, 12*const.keV], [const.M_D, const.sigma], const.AXe, 10*const.keV))
+                            , [15*const.keV], [const.M_D, const.sigma], const.AXe, 10*const.keV))
 
 if __name__=="__main__":
     main()
