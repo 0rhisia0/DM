@@ -37,21 +37,4 @@ def main():
         ratio = numer/denom
         comp = np.random(0, 1)
         if comp >= np.min([1,ratio]):
-            theta[i]=theta[i-1]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            theta[i] = theta[i-1]
