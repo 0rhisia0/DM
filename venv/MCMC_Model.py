@@ -38,7 +38,7 @@ def main():
     # plt.show()
     """
     # define events
-    events = [15*const.keV, 15*const.keV, 15*const.keV, 15*const.keV, 15*const.keV, 15*const.keV]
+    events = []
     # pick start
     theta = np.zeros((N, 2))
     # initialize MCMC parameters

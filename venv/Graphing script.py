@@ -7,45 +7,30 @@ from matplotlib import pyplot as plt
 
 plt.style.use('ggplot')
 
-def plot_rate():
-    Emin = 0.001 * const.keV
-    Emax = 200. * const.keV
-    Nsteps = 10000
-    del_Er = (Emax - Emin) / Nsteps
-    Er = np.arange(Emin, Emax, del_Er)
-    Xe = fn.diff_rate(Er, const.AXe)
-    Ge = fn.diff_rate(Er, const.AGe)
-    Ar = fn.diff_rate(Er, const.AAr)
-    fig, ax = plt.subplots()
-    line1, = ax.plot(Er, Xe, label='Xe')
-    line2, = ax.plot(Er, Ge, label='Ge')
-    line3, = ax.plot(Er, Ar, label='Ar')
-    xXe, yXe = fn.integrate_rate(const.AXe)
-    xAr, yAr = fn.integrate_rate(const.AAr)
-    xGe, yGe = fn.integrate_rate(const.AGe)
-    line4, = ax.plot(xXe, yXe, label='Xe', linestyle='--')
-    line5, = ax.plot(xGe, yGe, label='Ge', linestyle='--')
-    line6, = ax.plot(xAr, yAr, label='Ar', linestyle='--')
-    ax.set_xlim(0, 60)
-    ax.set_ylim(1e-6, 1e-3)
-    ax.legend()
-    plt.xlabel("Recoil Energy (KeV)")
-    plt.ylabel("Differential Rate (counts/kg/day/KeV)")
-    plt.yscale('log')
-    plt.show()
-
-
 def plot_int_rate2():
-    xXe, yXe = fn.integrate_rate(const.AXe)
-    xAr, yAr = fn.integrate_rate(const.AAr)
-    xGe, yGe = fn.integrate_rate(const.AGe)
+    nuclei_name = ["Xe", "Ar", "Ge"]
+    nuclei = [const.AXe, const.AAr, const.AGe]
+    WIMP = [const.M_D, const.sigma]
+    E_min = 0.001*const.keV
+    Nsteps = 1000
+    E_max = []
+    for nucleus in nuclei:
+        E_max.append(fn.max_recoil_energy(nucleus))
+        print("E_max for ", nucleus, "=", fn.max_recoil_energy(nucleus))
     fig, ax = plt.subplots()
-    line1, = ax.plot(xXe, yXe, label='Xe')
-    line2, = ax.plot(xGe, yGe, label='Ge')
-    line3, = ax.plot(xAr, yAr, label='Ar')
-    ax.set_xlim(1.e-2, 60)
-    # ax.set_ylim(1.e-5, 1e-3)
-    plt.legend()
+    for i in range(len(nuclei)):
+        del_Er = (E_max[i] - E_min) / Nsteps
+        E_r = np.arange(E_min, E_max[i], del_Er)
+        y = fn.diff_rate(E_r, WIMP, nuclei[i])
+        ax.plot(E_r, y, label=nuclei_name[i])
+    # for i in range(len(nuclei)):
+    #     del_Er = (E_max[i] - E_min) / Nsteps
+    #     E_r = np.arange(E_min, E_max[i], del_Er)
+    #     x, y = fn.integrate_rate(E_r, WIMP, nuclei[i])
+    #     ax.plot(x, y, label=nuclei_name[i], linestyle="--")
+    # ax.set_xlim(1.e-2, 60)
+    ax.set_ylim(1.e-8, 1e-2)
+    ax.legend()
     plt.ylabel("Rate (counts/kg/day)")
     plt.xlabel("Threshold Energy (KeV)")
     plt.yscale('log')
@@ -53,12 +38,7 @@ def plot_int_rate2():
 
 
 def main():
-
-    plot_rate()
     plot_int_rate2()
-    # plt.show()
-
-
 
 if __name__=="__main__":
     main()

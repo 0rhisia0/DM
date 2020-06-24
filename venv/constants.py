@@ -45,6 +45,6 @@ skin = 0.9 * fm
 sigma = 1.e-45 * cm2
 rho = 0.3 * GeV/cm3
 v_esc = 544*km/s
-v_0 = 230*km/s
+v_0 = 250*km/s
 v_e = 263*km/s
 M_D = 100.*GeV
