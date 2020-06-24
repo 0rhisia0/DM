@@ -15,21 +15,21 @@ def plot_int_rate2():
     Nsteps = 1000
     E_max = []
     for nucleus in nuclei:
-        E_max.append(fn.max_recoil_energy(nucleus))
-        print("E_max for ", nucleus, "=", fn.max_recoil_energy(nucleus))
+        E_max.append(fn.max_recoil_energy())
+        print("E_max for ", nucleus, "=", fn.max_recoil_energy())
     fig, ax = plt.subplots()
     for i in range(len(nuclei)):
         del_Er = (E_max[i] - E_min) / Nsteps
         E_r = np.arange(E_min, E_max[i], del_Er)
         y = fn.diff_rate(E_r, WIMP, nuclei[i])
         ax.plot(E_r, y, label=nuclei_name[i])
-    # for i in range(len(nuclei)):
-    #     del_Er = (E_max[i] - E_min) / Nsteps
-    #     E_r = np.arange(E_min, E_max[i], del_Er)
-    #     x, y = fn.integrate_rate(E_r, WIMP, nuclei[i])
-    #     ax.plot(x, y, label=nuclei_name[i], linestyle="--")
+    for i in range(len(nuclei)):
+        del_Er = (E_max[i] - E_min) / Nsteps
+        E_r = np.arange(E_min, E_max[i], del_Er)
+        x, y = fn.integrate_rate(E_r, WIMP, nuclei[i])
+        ax.plot(x, y, label=nuclei_name[i], linestyle="--")
     # ax.set_xlim(1.e-2, 60)
-    ax.set_ylim(1.e-8, 1e-2)
+    # ax.set_ylim(1.e-8, 1e-2)
     ax.legend()
     plt.ylabel("Rate (counts/kg/day)")
     plt.xlabel("Threshold Energy (KeV)")

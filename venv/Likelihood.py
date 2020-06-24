@@ -17,8 +17,8 @@ def events_likelihood(e_min, e_max, n_steps, events, WIMP, A, E_thr):
 
 def pois_and_en_prob(events, WIMP, A, Er, E_thr):
     p_energies = 1
-    dif_rate = fn.diff_rate2(Er, WIMP, A)
-    Er, int_rate = fn.integrate_rate2(Er, WIMP, A)
+    dif_rate = fn.diff_rate(Er, WIMP, A)
+    Er, int_rate = fn.integrate_rate(Er, WIMP, A)
     p_d_f_energies = dif_rate / int_rate
     for event_energy in events:
         idx = find_nearest_idx(event_energy, Er)
@@ -37,12 +37,12 @@ def find_nearest_idx(array, value):
 
 def main():
     Emin = 0.001 * const.keV
-    Emax = 200. * const.keV
+    Emax = fn.max_recoil_energy(10)
     Nsteps = 10000
     del_Er = (Emax - Emin) / Nsteps
     Er = np.arange(Emin, Emax, del_Er)
     print(events_likelihood(0.001*const.keV, 200*const.keV, 1000
-                            , [], [const.M_D, const.sigma], const.AXe, 10*const.keV))
+                            , [15*const.keV, 128*const.keV], [const.M_D, const.sigma], const.AXe, 10*const.keV))
 
 if __name__=="__main__":
     main()
