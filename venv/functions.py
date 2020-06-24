@@ -8,7 +8,6 @@ erf = sp.erf
 
 # Performs the velocity integral for the WIMP distribution
 def vel_integral(M_T, E_r, mu):
-    # issue is here V-min is probably not in the right units
     # all primary issues are here
     v_min_arr = const.c * np.sqrt(M_T * E_r / (2 * mu ** 2))
     k = ((np.pi ** (3 / 2)) * (const.v_0 ** 3) * (
@@ -23,7 +22,7 @@ def vel_integral(M_T, E_r, mu):
                 -const.v_esc ** 2 / (const.v_0 ** 2)) / (
                         np.sqrt(np.pi) * const.v_0)
         elif const.v_esc - const.v_e < v_min <= const.v_esc + const.v_e:
-            g = erf((const.v_e - v_min) / const.v_0) + erf((const.v_esc) / const.v_0) - 2 * (
+            g = erf((const.v_e - v_min) / const.v_0) + erf(const.v_esc / const.v_0) - 2 * (
                     const.v_e + const.v_esc - v_min) * np.exp(
                 -const.v_esc ** 2 / (const.v_0 ** 2)) / (np.sqrt(np.pi) * const.v_0)
         integral_v[i] = g * (np.pi ** (3 / 2) * const.v_0 ** 3 * k) / (2 * const.v_e)
@@ -34,7 +33,7 @@ def vel_integral(M_T, E_r, mu):
 def form_factor(Er, A):
     M_T = const.Mn * A
     q = np.sqrt(2. * M_T * Er)
-    r = 1.14*A**(1/3) * const.fm  # np.sqrt((1.23*A**(1/3)-0.60)**2-2.18) * const.fm
+    r = np.sqrt((1.23*A**(1/3)-0.60)**2-2.18) * const.fm
     qr = q * r / const.hc
     qs = q * const.skin
     return 3. * (np.sin(qr) - qr * np.cos(qr)) / (qr ** 3.) * np.exp(-(qs ** 2) / 2.)
@@ -43,7 +42,8 @@ def form_factor(Er, A):
 # determines E_max or the upper bound to the integration
 def max_recoil_energy():
     M_D = const.M_D
-    return M_D*const.v_esc**2/(2*const.c**2)
+    return 200
+    # return M_D*const.v_esc**2/(2*const.c**2)
 
 
 # calculates the integrated WIMP nuclear recoil rates

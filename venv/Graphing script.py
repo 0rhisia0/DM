@@ -11,7 +11,7 @@ def plot_int_rate2():
     nuclei_name = ["Xe", "Ar", "Ge"]
     nuclei = [const.AXe, const.AAr, const.AGe]
     WIMP = [const.M_D, const.sigma]
-    E_min = 0.001*const.keV
+    E_min = 1*const.keV
     Nsteps = 1000
     E_max = []
     for nucleus in nuclei:
