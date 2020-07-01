@@ -42,7 +42,7 @@ def form_factor(Er, A):
 # determines E_max or the upper bound to the integration
 def max_recoil_energy():
     M_D = const.M_D
-    return 200
+    return 160*const.keV
     # return M_D*const.v_esc**2/(2*const.c**2)
 
 

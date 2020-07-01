@@ -3,17 +3,19 @@ import matplotlib.pyplot as plt
 import scipy.stats as stats
 import Likelihood as lik
 import constants as const
-import matplotlib as mpl
+import matplotlib.colors as mcolors
+from tqdm import tqdm
+from math import isnan
 M_D_Low = 1 * const.GeV
-M_D_High = 300 * const.GeV
-sigma_high = 1e-43 * const.cm2
+M_D_High = 1000 * const.GeV
+sigma_high = 1e-38 * const.cm2
 sigma_low = 1e-48 * const.cm2
 
 def generate_data(N):
-    masses = stats.norm.rvs(const.M_D*2.1, 10*const.GeV, size=500)
-    sigmas = stats.lognorm.rvs(1, scale=const.sigma*10, loc=0, size=500)
-    ybins = 10 ** np.linspace(-48, -43, 30)
-    xbins = np.linspace(1*const.GeV, 300*const.GeV, 30)
+    masses = stats.norm.rvs(1000*const.GeV, 10*const.GeV, size=1000)
+    sigmas = stats.lognorm.rvs(3, scale=1e-48*const.cm2, loc=0, size=1000)
+    ybins = 10 ** np.linspace(-48, -43, 50)
+    xbins = np.linspace(1*const.GeV, 1100*const.GeV, 50)
     plt.hist2d(masses, sigmas/const.cm2, bins=[xbins, ybins])
     plt.yscale("log")
     plt.show()
@@ -28,11 +30,11 @@ def proposal(WIMP_curr):
     M_D_new = 0
     sigma_new = 0
     while True:
-        M_D_new = np.random.normal(curr_mass, 5 * const.GeV)  # sample param for mass
+        M_D_new = np.random.normal(curr_mass, 2 * const.GeV)  # sample param for mass
         if M_D_Low <= M_D_new <= M_D_High:
             break
     while True:
-        sigma_new = stats.lognorm.rvs(0.3, scale=curr_sigma, loc=0)  # sample param for cross section
+        sigma_new = stats.lognorm.rvs(0.1, scale=curr_sigma, loc=0)  # sample param for cross section
         if sigma_low <= sigma_new <= sigma_high:
             break
     assert (M_D_new and sigma_new)
@@ -40,49 +42,56 @@ def proposal(WIMP_curr):
 
 
 def likelihood(masses, sigmas, mass, sigma):
-    prob = 0
-    for i in range(len(masses)):
-        prob += np.log10(stats.norm.pdf(masses[i], loc=mass, scale=10*const.GeV))
-        prob += np.log10(stats.lognorm.pdf(sigmas[i], s=1, scale=sigma, loc=0))
+    prob = np.sum(np.log(stats.norm.pdf(masses, loc=mass, scale=10*const.GeV)))
+    prob += np.sum(np.log(stats.lognorm.pdf(sigmas, s=1, scale=sigma, loc=0)))
     return prob
 
+
 def main():
+    N = 10000
     masses, sigmas = generate_data(100)
-    curr_mass = const.M_D*3
-    curr_sigma = const.sigma*10
-    post_mass = [curr_mass]
-    post_sigma = [curr_sigma]
-    acceptance = np.zeros(1000)
-    for i in range(1000):
+    curr_mass = 100*const.GeV
+    curr_sigma = 1e-39*const.cm2
+    post_mass = []
+    post_sigma = []
+    acceptance = []
+    for i in tqdm(range(N)):
         new_mass, new_sigma = proposal([curr_mass, curr_sigma])
         prev_lik = likelihood(masses, sigmas, curr_mass, curr_sigma)
         new_lik = likelihood(masses, sigmas, new_mass, new_sigma)
-        ratio = 10**(new_lik-prev_lik)
-        if ratio > 1:
-            acceptance[i] = 1
+        ratio = new_lik-prev_lik
+        if isnan(ratio):
+            print("JUMP")
+            curr_mass = stats.uniform.rvs(loc=M_D_Low, scale=M_D_High-M_D_Low)
+            curr_sigma = stats.uniform.rvs(loc=sigma_low, scale=sigma_high-sigma_low)
+            continue
+        elif not i % 50:
+            acceptance.append(1)
             curr_mass = new_mass
             curr_sigma = new_sigma
-        elif np.random.rand() < ratio:
-            acceptance[i] = 1
+        elif ratio >= 0:
+            acceptance.append(1)
             curr_mass = new_mass
             curr_sigma = new_sigma
-        else:
-            acceptance[i] = 0
+        elif np.log10(np.random.rand()) < ratio:
+            acceptance.append(1)
+            curr_mass = new_mass
+            curr_sigma = new_sigma
         post_mass.append(curr_mass)
         post_sigma.append(curr_sigma)
-    move_percent = len(acceptance[acceptance == 1])/len(acceptance)
+    move_percent = len(acceptance)/N
     print(move_percent)
-    print(post_sigma[100], post_mass[100])
     ybins = 10 ** np.linspace(-48, -43, 50)
-    xbins = np.linspace(1*const.GeV, 300*const.GeV, 50)
-    plt.hist2d(post_mass, np.asarray(post_sigma)/const.cm2, bins=[xbins, ybins], norm=mpl.colors.LogNorm(), cmap=mpl.cm.gray)
+    xbins = np.linspace(1*const.GeV, 1100*const.GeV, 50)
+    plt.hist2d(post_mass, np.asarray(post_sigma)/const.cm2, bins=[xbins, ybins], norm=mcolors.LogNorm(10))
     plt.yscale("log")
     plt.show()
     plt.plot(post_mass, np.asarray(post_sigma)/const.cm2)
+    plt.xlabel("Mass of WIMP (GeV)")
+    plt.ylabel("Cross section of WIMP (cm^2)")
     plt.yscale("log")
     plt.show()
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
