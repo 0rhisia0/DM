@@ -6,7 +6,7 @@ from scipy import stats
 from matplotlib import pyplot as plt
 import Likelihood as lik
 N_STEPS = 159  # Energy steps
-TRUE_WIMP = [2*const.M_D, 1e-43*const.cm2]
+TRUE_WIMP = [3.67*const.M_D, const.sigma/1000]
 
 def main():
     E_thr = 6*const.keV  # threshold energy for generating total number of events
@@ -22,7 +22,7 @@ def main():
 
     idx = lik.find_nearest_idx(E_r, E_thr)
     mean_events = y[idx]  # expected number of events
-    num_events = stats.poisson.rvs(np.around(mean_events))  # num events to generate
+    num_events = stats.poisson.rvs(mean_events)  # num events to generate
 
     event_dist = fn.diff_rate(E_r, WIMP, target)  # event energies distribution
     idx2 = lik.find_nearest_idx(E_r, 60*const.keV)
@@ -40,7 +40,7 @@ def main():
     samples = samples[samples < 100]
     fig, ax = plt.subplots()
     ax.hist(samples, bins=N_STEPS)
-    for WIMP in [[const.M_D, const.sigma], [const.M_D*0.5, const.sigma], [const.M_D*2, const.sigma]]:
+    for WIMP in [TRUE_WIMP, [const.M_D*9, TRUE_WIMP[1]], [const.M_D*1, TRUE_WIMP[1]]]:
         E_min = 1 * const.keV
         E_max = fn.max_recoil_energy()
         del_Er = (E_max - E_min) / N_STEPS
@@ -53,7 +53,9 @@ def main():
         norm_fact = np.sum(event_dist)
         event_dist /= norm_fact
         true_rates = event_dist * mean_events
-        ax.plot(E_r, true_rates, label=str(WIMP))
+        ax.plot(E_r, true_rates, label=str(WIMP[0]/10**6)+" GeV, "+str(WIMP[1]/const.cm2)+"cm2" )
+    ax.set_ylabel("Counts")
+    ax.set_xlabel("Recoil Energy (keV)")
     plt.legend()
     plt.show()
     f = open('mock.txt', 'w')

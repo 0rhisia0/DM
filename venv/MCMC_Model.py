@@ -18,7 +18,7 @@ M_D_Low = 1 * const.GeV
 M_D_High = 1000 * const.GeV
 sigma_high = 1e-40 * const.cm2
 sigma_low = 1e-48 * const.cm2
-N = 10000  # number of markov chain transitions
+N = 5000  # number of markov chain transitions
 
 
 def proposal(WIMP_curr):
@@ -29,11 +29,11 @@ def proposal(WIMP_curr):
     M_D_new = 0
     sigma_new = 0
     while True:
-        M_D_new = np.random.normal(curr_mass, 20 * const.GeV)  # sample param for mass
+        M_D_new = np.random.normal(curr_mass, 2 * const.GeV)  # sample param for mass
         if M_D_Low <= M_D_new <= M_D_High:
             break
     while True:
-        sigma_new = lognorm.rvs(0.2, scale=curr_sigma, loc=0)  # sample param for cross section
+        sigma_new = lognorm.rvs(0.1, scale=curr_sigma, loc=0)  # sample param for cross section
         if sigma_low <= sigma_new <= sigma_high:
             break
     assert (M_D_new and sigma_new)
@@ -53,7 +53,7 @@ def main():
     # pick start
     theta = np.zeros((N, 2))
     # initialize MCMC parameters
-    theta[0] = [3*const.M_D, 100*const.sigma]
+    theta[0] = [const.M_D, 1000*const.sigma]
     # initialize values for energy
     Emin = 1 * const.keV
     Emax = fn.max_recoil_energy()
@@ -72,20 +72,20 @@ def main():
         if ratio >= 0:
             theta[i] = proposed_theta
             acceptance.append(1)
-        elif i%3==0:
+        elif np.log(np.random.rand()) < ratio:
             theta[i] = proposed_theta
             acceptance.append(1)
         else:
             theta[i] = theta[i-1]
     print(len(acceptance)/10000)
     ybins = 10 ** np.linspace(-48, -40, 50)
-    xbins = 10 ** np.linspace(6, 9, 50)
+    xbins = np.linspace(1, 1000, 50)
     fig, ax = plt.subplots()
-    ax.hist2d(theta[:, 0], theta[:, 1] / const.cm2, bins=[xbins, ybins])
+    h = ax.hist2d(theta[:, 0]/(10**6), theta[:, 1] / const.cm2, bins=[xbins, ybins], norm=mcolors.PowerNorm(0.4))
+    plt.colorbar(h[3], ax=ax)
     ax.set_yscale('log')
-    ax.set_xscale('log')
-    ax.plot(TRUE_WIMP[0], TRUE_WIMP[1]/const.cm2, marker="x", color="r")
-    ax.set_xlabel("Mass of WIMP (eV)")
+    ax.plot(TRUE_WIMP[0]/(10**6), TRUE_WIMP[1]/const.cm2, marker="x", color="r")
+    ax.set_xlabel("Mass of WIMP (GeV)")
     ax.set_ylabel("Cross section of WIMP (cm^2)")
     plt.show()
     print(N-1)

@@ -12,8 +12,8 @@ sigma_high = 1e-38 * const.cm2
 sigma_low = 1e-48 * const.cm2
 
 def generate_data(N):
-    masses = stats.norm.rvs(1000*const.GeV, 10*const.GeV, size=1000)
-    sigmas = stats.lognorm.rvs(3, scale=1e-48*const.cm2, loc=0, size=1000)
+    masses = stats.norm.rvs(100*const.GeV, 30*const.GeV, size=500)
+    sigmas = stats.lognorm.rvs(1, scale=1e-45*const.cm2, loc=0, size=500)
     ybins = 10 ** np.linspace(-48, -43, 50)
     xbins = np.linspace(1*const.GeV, 1100*const.GeV, 50)
     plt.hist2d(masses, sigmas/const.cm2, bins=[xbins, ybins])
@@ -30,7 +30,7 @@ def proposal(WIMP_curr):
     M_D_new = 0
     sigma_new = 0
     while True:
-        M_D_new = np.random.normal(curr_mass, 2 * const.GeV)  # sample param for mass
+        M_D_new = np.random.normal(curr_mass, 20 * const.GeV)  # sample param for mass
         if M_D_Low <= M_D_new <= M_D_High:
             break
     while True:
@@ -65,7 +65,7 @@ def main():
             curr_mass = stats.uniform.rvs(loc=M_D_Low, scale=M_D_High-M_D_Low)
             curr_sigma = stats.uniform.rvs(loc=sigma_low, scale=sigma_high-sigma_low)
             continue
-        elif not i % 50:
+        elif not i % 4:
             acceptance.append(1)
             curr_mass = new_mass
             curr_sigma = new_sigma
@@ -81,15 +81,15 @@ def main():
         post_sigma.append(curr_sigma)
     move_percent = len(acceptance)/N
     print(move_percent)
+    fig, ax = plt.subplots()
     ybins = 10 ** np.linspace(-48, -43, 50)
     xbins = np.linspace(1*const.GeV, 1100*const.GeV, 50)
-    plt.hist2d(post_mass, np.asarray(post_sigma)/const.cm2, bins=[xbins, ybins], norm=mcolors.LogNorm(10))
+    h = ax.hist2d(post_mass, np.asarray(post_sigma)/const.cm2, bins=[xbins, ybins], norm=mcolors.PowerNorm(0.4))
     plt.yscale("log")
-    plt.show()
-    plt.plot(post_mass, np.asarray(post_sigma)/const.cm2)
+    plt.colorbar(h[3], ax=ax)
+    ax.plot(post_mass, np.asarray(post_sigma)/const.cm2, alpha=0.3, color='r')
     plt.xlabel("Mass of WIMP (GeV)")
     plt.ylabel("Cross section of WIMP (cm^2)")
-    plt.yscale("log")
     plt.show()
 
 
