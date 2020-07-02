@@ -17,16 +17,21 @@ def events_likelihood(E_r, events, WIMP, A, E_thr, del_Er):
     pred_events = int_rate[idx]*BULK
     poisson_prob = poisson.logpmf(obs_events, pred_events)
 
-    e_prob = energy_prob(events, WIMP, A, E_r, del_Er)
+    e_prob = energy_prob(events, WIMP, A, E_r, del_Er, idx)
     return poisson_prob+e_prob
 
 
-def energy_prob(events, WIMP, A, E_r, del_Er):
+def energy_prob(events, WIMP, A, E_r, del_Er, idx):
+    if not len(events):
+        return 1
     dif_rate = fn.diff_rate(E_r, WIMP, A)
+    events = events - idx
+    E_r = E_r[idx:60]
+    dif_rate = dif_rate[idx:60]
     dif_rate /= np.sum(dif_rate)
     prob = 0
     for event in events:
-        prob += np.log10(dif_rate[int(event)])
+        prob += np.log(dif_rate[int(event)])
     return prob
 
 
@@ -50,9 +55,11 @@ def main():
     Nsteps = 159
     del_Er = (Emax - Emin) / Nsteps
     E_r = np.arange(Emin, Emax, del_Er)
+    print(len(E_r))
     with open('mock.txt') as f:
         events = f.read().splitlines()
     events = [float(num) for num in events]
+    events = np.asarray(events)
     WIMP = [const.M_D, const.sigma]
     nucleus = const.AXe
     E_thr = 6 * const.keV
