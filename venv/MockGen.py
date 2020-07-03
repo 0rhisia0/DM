@@ -6,7 +6,7 @@ from scipy import stats
 from matplotlib import pyplot as plt
 import Likelihood as lik
 N_STEPS = 159  # Energy steps
-TRUE_WIMP = [3.67*const.M_D, const.sigma/1000]
+TRUE_WIMP = [40*const.GeV, const.sigma*10]
 
 def main():
     E_thr = 6*const.keV  # threshold energy for generating total number of events
@@ -40,7 +40,7 @@ def main():
     samples = samples[samples < 100]
     fig, ax = plt.subplots()
     ax.hist(samples, bins=N_STEPS)
-    for WIMP in [TRUE_WIMP, [const.M_D*9, TRUE_WIMP[1]], [const.M_D*1, TRUE_WIMP[1]]]:
+    for WIMP in [TRUE_WIMP, [50*const.GeV, TRUE_WIMP[1]], [const.M_D*10, TRUE_WIMP[1]]]:
         E_min = 1 * const.keV
         E_max = fn.max_recoil_energy()
         del_Er = (E_max - E_min) / N_STEPS
