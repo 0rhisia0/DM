@@ -18,9 +18,10 @@ M_D_Low = 1 * const.GeV
 M_D_High = 1000 * const.GeV
 sigma_high = 1e-40 * const.cm2
 sigma_low = 1e-48 * const.cm2
-N = 1000  # number of markov chain transitions
+N = 100000  # number of markov chain transitions
 
 
+# proposal function for establishing a Markov Chain walk from point to point
 def proposal(WIMP_curr):
     # build a gaussian curve to sample from in the parameter space
     # uses a normal in mass space and a log normal in cross section space to sample the region
@@ -33,7 +34,7 @@ def proposal(WIMP_curr):
         if M_D_Low <= M_D_new <= M_D_High:
             break
     while True:
-        sigma_new = lognorm.rvs(1, scale=curr_sigma, loc=0)  # sample param for cross section
+        sigma_new = lognorm.rvs(0.2, scale=curr_sigma, loc=0)  # sample param for cross section
         if sigma_low <= sigma_new <= sigma_high:
             break
     assert (M_D_new and sigma_new)
@@ -42,8 +43,6 @@ def proposal(WIMP_curr):
 
 def main():
     TRUE_WIMP = MockGen.TRUE_WIMP
-    # N = 1000
-    print()
     events = []
     with open('mock.txt') as f:
         events = f.read().splitlines()
@@ -61,14 +60,13 @@ def main():
     E_r = np.arange(Emin, Emax, del_Er)
     events = lik.find_indices(E_r, events)
     # Metropolis Hastings loop
-    hooked = False
     acceptance = []
     for i in tqdm(range(1, N)):
         proposed_theta = proposal(theta[i - 1])
         prev_lik = lik.events_likelihood(E_r, events, theta[i - 1], const.AXe, E_thr, del_Er)
         new_lik = lik.events_likelihood(E_r, events, proposed_theta, const.AXe, E_thr, del_Er)
         ratio = new_lik - prev_lik
-        if ratio >= 0:
+        if ratio >= 0 or not i % 5:
             theta[i] = proposed_theta
             acceptance.append(1)
         elif np.log(np.random.rand()) < ratio:
@@ -101,7 +99,10 @@ def main():
     # plt.yscale('log')
     # plt.ylim(1e-48, 1e-40)
     # plt.show()
-
+    f = open('data.txt', 'w')
+    for thetas in theta:
+        f.write(str(thetas) + '\n')
+    f.close()
 
 if __name__ == "__main__":
     main()

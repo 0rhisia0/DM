@@ -3,6 +3,7 @@ import scipy.special as sp
 import constants as const
 import math
 import scipy.integrate as integrate
+
 erf = sp.erf
 
 
@@ -10,9 +11,11 @@ erf = sp.erf
 def vel_integral(M_T, E_r, mu):
     # all primary issues are here
     v_min_arr = const.c * np.sqrt(M_T * E_r / (2 * mu ** 2))
+    # normalization factor
     k = ((np.pi ** (3 / 2)) * (const.v_0 ** 3) * (
             erf(const.v_esc / const.v_0) - 2 * const.v_esc * np.exp(-(const.v_esc ** 2 / const.v_0 ** 2)) / (
             np.sqrt(math.pi) * const.v_0))) ** (-1)
+    # integration array to be returned
     integral_v = np.zeros(v_min_arr.shape[0])
     for i in range(v_min_arr.shape[0]):
         g = 0
@@ -29,11 +32,12 @@ def vel_integral(M_T, E_r, mu):
     return integral_v
 
 
-# Helmholtz form factor implemented using trig functions
+# Helmholtz form factor implemented: first order bessel function of the first kind implemented using numpy
+# stable trig functions
 def form_factor(Er, A):
     M_T = const.Mn * A
     q = np.sqrt(2. * M_T * Er)
-    r = np.sqrt((1.23*A**(1/3)-0.60)**2-2.18) * const.fm
+    r = np.sqrt((1.23 * A ** (1 / 3) - 0.60) ** 2 - 2.18) * const.fm
     qr = q * r / const.hc
     qs = q * const.skin
     return 3. * (np.sin(qr) - qr * np.cos(qr)) / (qr ** 3.) * np.exp(-(qs ** 2) / 2.)
@@ -42,11 +46,12 @@ def form_factor(Er, A):
 # determines E_max or the upper bound to the integration
 def max_recoil_energy():
     M_D = const.M_D
-    return 160*const.keV
-    # return M_D*const.v_esc**2/(2*const.c**2)
+    # set at  160*const.keV for convenience
+    return 160 * const.keV
+    # return M_D*const.v_esc**2/(2*const.c**2) # true value to return
 
 
-# calculates the integrated WIMP nuclear recoil rates
+# calculates the integrated WIMP nuclear recoil rates as a function of threshold energy E_r
 def integrate_rate(E_r, WIMP, A):
     dif_rate = diff_rate(E_r, WIMP, A)
     x = np.empty(E_r.shape[0])
@@ -54,12 +59,12 @@ def integrate_rate(E_r, WIMP, A):
     for i in range(E_r.shape[0]):
         domain = E_r[i:]
         codomain = dif_rate[i:]
-        integral = integrate.simps(codomain, domain)
+        y[i] = integrate.simps(codomain, domain)
         x[i] = E_r[i]
-        y[i] = integral
     return x, y
 
 
+# calculates the average rate per nuclear recoil (dR/dE_r) as a function of E_r
 def diff_rate(E_r, WIMP, A):
     M_D = WIMP[0]
     sigma = WIMP[1]
@@ -71,6 +76,7 @@ def diff_rate(E_r, WIMP, A):
     return constant * A * form_factor(E_r, A) ** 2 * vel_integral(M_T, E_r, mu) * conv_fact
 
 
+"""Deprecated functions for use in plotting the velocity distribution of galactic dark matter in the milky way.
 # def velDist1(v_D):
 #     k = ((math.pi ** (3 / 2)) * (const.v_0 ** 3) * (
 #             erf(const.v_esc / const.v_0) - 2 * const.v_esc * math.exp(-(const.v_esc / const.v_0) ** 2) / (
@@ -91,4 +97,4 @@ def diff_rate(E_r, WIMP, A):
 #
 # def velDist3(v_D):
 #     return 0
-
+"""

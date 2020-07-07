@@ -1,16 +1,18 @@
+""" This script graphs the differential and integrated event rates for nuclear dark matter interactions with
+given target molecules."""
 import functions as fn
 import constants as const
 import numpy as np
 import scipy as sp
 from scipy import integrate
 from matplotlib import pyplot as plt
-
 plt.style.use('ggplot')
+
 
 def plot_int_rate2():
     nuclei_name = ["Xe", "Ar", "Ge"]
     nuclei = [const.AXe, const.AAr, const.AGe]
-    WIMP = [const.M_D, const.sigma]
+    WIMP = [const.M_D*3, const.sigma]
     E_min = 1*const.keV
     Nsteps = 1000
     E_max = []
@@ -42,5 +44,3 @@ def main():
 
 if __name__=="__main__":
     main()
-
-az
