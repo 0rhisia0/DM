@@ -6,7 +6,7 @@ from scipy import stats
 from matplotlib import pyplot as plt
 import Likelihood as lik
 N_STEPS = 159  # Energy steps
-TRUE_WIMP = [20*const.GeV, const.sigma/10]
+TRUE_WIMP = [60*const.GeV, const.sigma/1000000]
 
 def main():
     E_thr = 6*const.keV  # threshold energy for generating total number of events
@@ -17,6 +17,8 @@ def main():
     E_max = fn.max_recoil_energy()
     del_Er = (E_max - E_min) / N_STEPS
     E_r = np.arange(E_min, E_max, del_Er)
+    weights = 1/(1+np.exp(-1.35*E_r+8.1))
+
     x, y = fn.integrate_rate(E_r, WIMP, target)  # expected events per kg day, as a function of E_thr
     y *= lik.BULK  # 100 kilo target, 300 day runtime
 
@@ -26,8 +28,9 @@ def main():
 
     event_dist = fn.diff_rate(E_r, WIMP, target)  # event energies distribution
     idx2 = lik.find_nearest_idx(E_r, 60*const.keV)
-    event_dist = event_dist[idx:idx2]
-    E_r = E_r[idx:idx2]
+    event_dist *= weights
+    event_dist = event_dist[:idx2]
+    E_r = E_r[:idx2]
 
     norm_fact = np.sum(event_dist)
     event_dist /= norm_fact
@@ -36,19 +39,19 @@ def main():
     custm = stats.rv_discrete(name='custm', values=(E_r, event_dist))
 
     samples = custm.rvs(size=num_events)
-    samples = samples[E_thr < samples]
     samples = samples[samples < 100]
     fig, ax = plt.subplots()
     ax.hist(samples, bins=N_STEPS)
-    for WIMP in [TRUE_WIMP, [100*const.GeV, TRUE_WIMP[1]], [const.M_D*10, TRUE_WIMP[1]]]:
+    for WIMP in [TRUE_WIMP, [500*const.GeV, TRUE_WIMP[1]], [const.M_D*10, TRUE_WIMP[1]]]:
         E_min = 1 * const.keV
         E_max = fn.max_recoil_energy()
         del_Er = (E_max - E_min) / N_STEPS
         E_r = np.arange(E_min, E_max, del_Er)
 
         event_dist = fn.diff_rate(E_r, WIMP, target)  # event energies distribution
-        event_dist = event_dist[idx:60]
-        E_r = E_r[idx:60]
+        event_dist *= weights
+        event_dist = event_dist[:60]
+        E_r = E_r[:60]
 
         norm_fact = np.sum(event_dist)
         event_dist /= norm_fact

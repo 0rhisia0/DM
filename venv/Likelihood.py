@@ -15,19 +15,21 @@ def events_likelihood(E_r, events, WIMP, A, E_thr, del_Er):
     pred_events = int_rate[idx]*BULK  # multiplied by kg*days of detector chosen
 
     poisson_prob = poisson.logpmf(obs_events, pred_events)  # poisson probability of total event number
-    e_prob = energy_prob(events, WIMP, A, E_r, del_Er, idx)  # product probability of event energies
+    e_prob = energy_prob(events, WIMP, A, E_r, del_Er)  # product probability of event energies
 
     return poisson_prob+e_prob
 
 
 # calculates the product probability of events given WIMP and event parameters
-def energy_prob(events, WIMP, A, E_r, del_Er, idx):
+def energy_prob(events, WIMP, A, E_r, del_Er):
     if not len(events):
         return 1  # empty product
     dif_rate = fn.diff_rate(E_r, WIMP, A)
-    events = events - idx - 1  # converting energies into indices by subtracting threshold away from it
-    E_r = E_r[idx:60]
-    dif_rate = dif_rate[idx:60]
+    events = events - 1  # converting energies into indices by subtracting threshold away from it
+    E_r = E_r[:60]
+    weights = 1 / (1 + np.exp(-1.35 * E_r + 8.1))
+    dif_rate = dif_rate[:60]
+    dif_rate *= weights
     dif_rate /= np.sum(dif_rate)
     prob = 0
     for event in events:
