@@ -14,32 +14,14 @@ import MockGen
 
 # given events we want to find the parameters that match them best
 # We can do this using a Markov Chain Monte Carlo utilizing the Metropolis Hastings algorithm
-M_D_Low = 1 * const.GeV
+M_D_Low = 8 * const.GeV
 M_D_High = 1000 * const.GeV
 sigma_high = 1e-40 * const.cm2
 sigma_low = 1e-50 * const.cm2
-N = 100000  # number of markov chain transitions
+N = 10000  # number of markov chain transitions
 
 
 # proposal function for establishing a Markov Chain walk from point to point
-# def proposal(WIMP_curr):
-#     # build a gaussian curve to sample from in the parameter space
-#     # uses a normal in mass space and a log normal in cross section space to sample the region
-#     curr_mass = WIMP_curr[0]
-#     curr_sigma = WIMP_curr[1]
-#     M_D_new = 0
-#     sigma_new = 0
-#     while True:
-#         M_D_new = np.random.normal(curr_mass, 2 * const.GeV)  # sample param for mass
-#         if M_D_Low <= M_D_new <= M_D_High:
-#             break
-#     while True:
-#         sigma_new = lognorm.rvs(0.3, scale=curr_sigma, loc=0)  # sample param for cross section
-#         if sigma_low <= sigma_new <= sigma_high:
-#             break
-#     assert (M_D_new and sigma_new)
-#     return np.asarray([M_D_new, sigma_new])
-
 def proposal(WIMP_curr):
     # build a gaussian curve to sample from in the parameter space
     # uses a normal in mass space and a log normal in cross section space to sample the region
@@ -48,15 +30,33 @@ def proposal(WIMP_curr):
     M_D_new = 0
     sigma_new = 0
     while True:
-        M_D_new = lognorm.rvs(1, scale=curr_mass, loc=0)  # sample param for mass
+        M_D_new = np.random.normal(curr_mass, 2 * const.GeV)  # sample param for mass
         if M_D_Low <= M_D_new <= M_D_High:
             break
     while True:
-        sigma_new = lognorm.rvs(1, scale=curr_sigma, loc=0)  # sample param for cross section
+        sigma_new = lognorm.rvs(0.3, scale=curr_sigma, loc=0)  # sample param for cross section
         if sigma_low <= sigma_new <= sigma_high:
             break
     assert (M_D_new and sigma_new)
     return np.asarray([M_D_new, sigma_new])
+
+# def proposal(WIMP_curr):
+#     # build a gaussian curve to sample from in the parameter space
+#     # uses a normal in mass space and a log normal in cross section space to sample the region
+#     curr_mass = WIMP_curr[0]
+#     curr_sigma = WIMP_curr[1]
+#     M_D_new = 0
+#     sigma_new = 0
+#     while True:
+#         M_D_new = lognorm.rvs(1, scale=curr_mass, loc=0)  # sample param for mass
+#         if M_D_Low <= M_D_new <= M_D_High:
+#             break
+#     while True:
+#         sigma_new = lognorm.rvs(1, scale=curr_sigma, loc=0)  # sample param for cross section
+#         if sigma_low <= sigma_new <= sigma_high:
+#             break
+#     assert (M_D_new and sigma_new)
+#     return np.asarray([M_D_new, sigma_new])
 
 
 def main():

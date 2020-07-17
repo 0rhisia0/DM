@@ -31,7 +31,7 @@ def main():
         for j in range(2):
             thetas[i] = [float(i) for i in thetas[i]]
     thetas = np.asarray(thetas)
-    thetas = thetas[100:]
+    thetas = thetas[:]
     ybins = 10 ** np.linspace(-50, -40, 200)
     xbins = 10 ** np.linspace(0, 3, 200)
 
