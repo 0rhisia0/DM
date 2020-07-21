@@ -6,7 +6,8 @@ with open('mock.txt') as f:
     events = f.read().splitlines()
 events = np.asarray([float(num) for num in events])
 print(events.shape)
-detector = nestpy.VDetector()
+detector = nestpy.DetectorExample_XENON10()
+detector.Initialization()
 
 # nc = nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", -1., 1, True, 1.0)
 
@@ -16,7 +17,6 @@ interaction = nestpy.INTERACTION_TYPE(0)
 yields = np.empty((events.shape[0], 2))
 g1 = detector.get_g1()
 g2 = nc.CalculateG2(False)
-print(g1, g2)
 electron = np.random.choice(events, events.shape, replace=True)
 for i in range(events.shape[0]):
     y = nc.GetYields(interaction, events[i])

@@ -1,0 +1,3 @@
+import nestpy
+
+nestpy.TestSpectra()

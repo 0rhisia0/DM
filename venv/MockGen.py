@@ -6,7 +6,7 @@ from scipy import stats
 from matplotlib import pyplot as plt
 import Likelihood as lik
 N_STEPS = 159  # Energy steps
-TRUE_WIMP = [300*const.GeV, const.sigma]
+TRUE_WIMP = [300*const.GeV, const.sigma*10]
 
 def main():
     E_thr = 6*const.keV  # threshold energy for generating total number of events
